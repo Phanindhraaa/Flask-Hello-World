@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/Phanindhraaa/Flask-Hello-World.git'
+                git branch: 'main', url: 'https://github.com/Phanindhraaa/Flask-Hello-World.git'
             }
         }
 
@@ -28,7 +28,6 @@ pipeline {
             steps {
                 sh '''
                     . $VENV_DIR/bin/activate
-                    pkill -f "python3 app.py" || true
                     nohup python3 app.py > $FLASK_LOG 2>&1 &
                 '''
             }
@@ -37,8 +36,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'output.log', fingerprint: true
+            echo "Pipeline finished. You can check logs in ${env.FLASK_LOG}"
         }
     }
 }
-
