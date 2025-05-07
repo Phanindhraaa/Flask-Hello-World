@@ -1,25 +1,27 @@
 name: Deploy to EC2
-on:
-  push:
-    branches:
-      - main
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.0
-      with:
-        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-    - name: Deploy to EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ~/Flask-Hello-World
-          git pull origin main
-          source venv/bin/activate
-          pip install -r requirements.txt
-          pkill gunicorn || true
-          nohup gunicorn --bind 0.0.0.0:5000 app:app &
-        EOF
+  on:
+    push:
+      branches:
+        - main
+  jobs:
+    deploy:
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            cd ~/Flask-Hello-World
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            pkill gunicorn || true
+            nohup gunicorn --bind 0.0.0.0:5000 app:app &
+            sleep 2  # Ensure Gunicorn starts before SSH session closes
+            echo "Deployment completed"
+          EOF
