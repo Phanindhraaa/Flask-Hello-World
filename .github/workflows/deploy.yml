@@ -22,6 +22,6 @@ name: Deploy to EC2
             pip install -r requirements.txt
             pkill gunicorn || true
             nohup gunicorn --bind 0.0.0.0:5000 app:app &
-            sleep 2  # Ensure Gunicorn starts before SSH session closes
+            sleep 5  # Increased delay to prevent SSH disconnect
             echo "Deployment completed"
           EOF
